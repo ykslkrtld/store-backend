@@ -25,10 +25,13 @@ dbConnection()
 
 
   
-  /* ------------------------------------------------------- */
+/* ------------------------------------------------------- */
 
 // Routes
 app.use(require("./src/routes/productsRouter"));
+
+app.use(require('./src/routes/userRouter'))
+
 
 // Catch Error from Async
 require('./src/middlewares/errorHandler')
