@@ -23,11 +23,30 @@ dbConnection()
 require('express-async-errors')
 
 
+/* ------------------------------------------------------- */
+const session = require('cookie-session') // Session Middleware
+
+app.use(session({ 
+    secret: process.env.SECRET_KEY, 
+}))
 
 /* ------------------------------------------------------- */
 
+// Middleware for check user data from session
 
-  
+app.use(require('./src/middlewares/userControl'))  // routerlardan üstte çalışması gerekir
+
+/* ------------------------------------------------------- */
+
+app.all('/', (req, res) => {
+  res.send({
+      message: 'Welcome to Blog Api',
+      session: req.session,  // session modelinin oluşturmuş olduğu req.sessiondır. req.session kullanarak session data ekleme, silme, güncelleme vb yapacağız
+      user: req.user,
+      isLogin: (req.user ? true : false)
+  })
+})  
+
 /* ------------------------------------------------------- */
 
 // Routes
@@ -35,29 +54,13 @@ app.use(require("./src/routes/productsRouter"));
 
 app.use(require('./src/routes/userRouter'))
 
-
-// Catch Error from Async
-require('./src/middlewares/errorHandler')
-
-
+app.use(require('./src/routes/authRouter'))
 
 
   /* ------------------------------------------------------- */
 
 // Catch Errors:
 app.use(require("./src/middlewares/errorHandler"));
-
-/* ------------------------------------------------------- */
-
-app.all("/", (req, res) => {
-  res.send({
-    message: "Welcome to Store Api",
-    session: req.session,
-  });
-});
-
-
-
 
 /* ------------------------------------------------------- */
 
