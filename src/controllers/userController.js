@@ -45,12 +45,10 @@ const user = {
     delete: async (req, res) => {
         const data = await User.deleteOne({_id: req.params.id})
 
-        if(data.deletedCount) {
-            res.status(204)
-        } else {
-            res.errorStatusCode = 404
-            throw new Error('Not Found')
-        }
+        res.status(data.deletedCount ? 204 : 404).send({
+            error: !data.deletedCount,
+            data,
+          });
     }
 
 }

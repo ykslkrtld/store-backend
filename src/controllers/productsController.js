@@ -49,9 +49,9 @@ const category = {
             res.errorStatusCode = 404
             throw new Error('Not Found')
         }
-    }
-
+    },
 }
+
 
 const product = {
 

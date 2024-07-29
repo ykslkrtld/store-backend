@@ -9,20 +9,24 @@ const { mongoose } = require('../dbConnection')
 
 const passwordEncrypt = require("../helpers/passwordEncrypt");
 
-const UserSchema = mongoose.Schema({
+const UserSchema = new mongoose.Schema({
 
     email: {
         type: String,
         trim: true,
-        required: true,
-        unique: true
+        required: [true, 'email is required'],
+        unique: true,
+        validate: [
+            (email) => (email.includes('@') && email.includes('.')),
+            'Email type is incorrect'
+        ]
     },
 
     password: {
         type: String,
         trim: true,
         required: true,
-        // set: (password) => passwordEncrypt(password),
+        set: (password) => passwordEncrypt(password)
     },
 
     isAdmin: {
