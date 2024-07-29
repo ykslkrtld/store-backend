@@ -43,12 +43,10 @@ const category = {
     delete: async (req, res) => {
         const data = await Category.deleteOne({_id: req.params.categoryId})
 
-        if(data.deletedCount) {
-            res.status(204)
-        } else {
-            res.errorStatusCode = 404
-            throw new Error('Not Found')
-        }
+        res.status(data.deletedCount ? 204 : 404).send({
+            error: !data.deletedCount,
+            data,
+          });
     },
 }
 
@@ -91,12 +89,10 @@ const product = {
     delete: async (req, res) => {
         const data = await Product.deleteOne({_id: req.params.productId})
 
-        if(data.deletedCount) {
-            res.status(204)
-        } else {
-            res.errorStatusCode = 404
-            throw new Error('Not Found')
-        }
+        res.status(data.deletedCount ? 204 : 404).send({
+            error: !data.deletedCount,
+            data,
+          });
     }
 
 }
