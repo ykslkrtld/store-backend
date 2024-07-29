@@ -59,8 +59,9 @@ app.listen(PORT, () => console.log("Running: http://127.0.0.1:" + PORT));
 
 
 
-
-
+// require("./src/helpers/dataCreate")()
+//     .then((res) => console.log("Data synched"))
+//     .catch((err) => console.error("Data could not synched"));
 
 /* ------------------------------------------------------- */
 /* ------------------------------------------------------- */
