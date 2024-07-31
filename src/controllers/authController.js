@@ -18,7 +18,7 @@ const auth = {
 
       if (user) {
 
-        if (user.password == password) {
+        if (user.password == passwordEncrypt(password)) {
 
           req.session._id = user._id;
           req.session.password = user.password;
