@@ -7,7 +7,11 @@ const router = require('express').Router()
 
 const user = require('../controllers/userController')
 
+const {isAdmin} = require('../middlewares/permissions')
+
 /* ------------------------------------------------------- */
+
+// router.use(isAdmin)
 
 router.route('/user')
     .get(user.list)
