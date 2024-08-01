@@ -11,17 +11,17 @@ const {isAdmin} = require('../middlewares/permissions')
 
 /* ------------------------------------------------------- */
 
-// router.use(isAdmin)
+// router.use(isAdmin)  // bu şekilde login yapmaya izin vermedi
 
 router.route('/user')
-    .get(user.list)
-    .post(user.create)
+    .get(isAdmin, user.list)
+    .post(isAdmin, user.create)
 
 router.route('/user/:id')
-    .get(user.read)
-    .put(user.update)
-    .patch(user.update)
-    .delete(user.delete)
+    .get(isAdmin, user.read)
+    .put(isAdmin, user.update)
+    .patch(isAdmin, user.update)
+    .delete(isAdmin, user.delete)
 
 
 module.exports = router
