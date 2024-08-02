@@ -36,6 +36,9 @@ app.use(session({
 
 app.use(require('./src/middlewares/userControl'))  // routerlardan üstte çalışması gerekir
 
+// Middleware for queryHandler (Search, Filter, Sort, Page)
+app.use(require('./src/middlewares/queryHandler'))
+
 /* ------------------------------------------------------- */
 
 app.all('/', (req, res) => {

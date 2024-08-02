@@ -8,10 +8,11 @@ const { Category, Product } = require('../models/productsModel')
 const category = {
 
     list: async (req, res) => {
-        const data = await Category.find()
+        const data = await res.getModelList(Category) 
 
         res.status(200).send({
             error: false,
+            details: await res.getModelListDetails(Category),
             result: data
         })
     },
@@ -54,10 +55,11 @@ const category = {
 const product = {
 
     list: async (req, res) => {
-        const data = await Product.find().populate('categoryId')
+        const data = await res.getModelList(Product, 'categoryId')
 
         res.status(200).send({
             error: false,
+            details: await res.getModelListDetails(Product),
             result: data
         })
     },
