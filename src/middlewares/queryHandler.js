@@ -1,98 +1,67 @@
 "use strict";
 /* -------------------------------------------------------
-    EXPRESSJS - BLOG Project with Mongoose
+    EXPRESS - Personnel API
 ------------------------------------------------------- */
-// queryHandler middleware
+// app.use(findSearchSortPage):
 
-module.exports = async (req, res, next) => {
+module.exports = (req, res, next) => {
+  // Searching & Sorting & Pagination:
 
-    // FILTERING & SEARCHING & SORTING & PAGINATION
+  const filter = req.query?.filter || {};
 
-    
-    // FILTERING:
-    // URL?filter[fieldName1]=value1&filter[fieldName2]=value2
-    const filter = req.query?.filter || {}
-    // console.log(filter)
+  // SEARCHING: URL?search[key1]=value1&search[key2]=value2
+  const search = req.query?.search || {};
+  for (let key in search) search[key] = { $regex: search[key], $options: "i" };
 
+  // Cancelled -> SORTING: URL?sort[key1]=1&sort[key2]=-1 (1:ASC, -1:DESC)
+  // mongoose=^8.0 -> SORTING: URL?sort[key1]=asc&sort[key2]=desc (asc: A->Z - desc: Z->A)
+  const sort = req.query?.sort || {};
 
+  // PAGINATION: URL?page=1&limit=10
+  // LIMIT:
+  let limit = Number(req.query?.limit);
+  limit = limit > 0 ? limit : Number(process.env?.PAGE_SIZE || 20);
+  // PAGE:
+  let page = Number(req.query?.page);
+  page = (page > 0 ? page : 1) - 1;
+  // SKIP:
+  let skip = Number(req.query?.skip);
+  skip = skip > 0 ? skip : page * limit;
 
-    // SEARCHING:
-    // URL?search[fieldName1]=value1&search[fieldName2]=value2
-    const search = req.query?.search || {}
-    // console.log(search)
-    for(let key in search)
-      search[key] = { $regex: search[key], $options: 'i' }
-    // console.log(search)
-    // filter searchden performans olarak daha iyi mümkün oldukça search yerine onu kullanmak gerek -- search stringlerde işe yarıyor sadece regexten dolayı ama onda bile mümkünse filter kullanılmalı --- mesela published boolean olduğundan veya regex kullanılamadığından search kullanılamaz
+  // Run SearchingSortingPagination engine for Model:
+  res.getModelList = async function (Model, customFilters = {}, populate = null) {
+    const filtersAndSearch = { ...customFilters, ...filter, ...search };
+    return await Model.find(filtersAndSearch)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .populate(populate);
+  };
 
+  // Details:
+  res.getModelListDetails = async function (Model, customFilters = {}) {
+    const filtersAndSearch = { ...customFilters, ...filter, ...search };
+    const data = await Model.find(filtersAndSearch);
+    let details = {
+      search,
+      sort,
+      skip,
+      limit,
+      page,
+      pages: {
+        previous: page > 0 ? page : false,
+        current: page + 1,
+        next: page + 2,
+        total: Math.ceil(data.length / limit),
+      },
+      totalRecords: data.length,
+    };
+    details.pages.next =
+      details.pages.next > details.pages.total ? false : details.pages.next;
+    if (details.totalRecords <= limit) details.pages = false;
+    return details;
+  };
 
+  next();
+};
 
-    // SORTING:
-    // URL?sort[fieldName1]=+1&sort[fieldName2]=-1 // Mongoose 8.0 den itibaren deprecated oldu
-    // URL?sort[fieldName1]=asc&sort[fieldName2]=desc
-    const sort = req.query?.sort || {}
-    // console.log(sort)
-
-
-
-
-    // Pagination
-    // URL?page=3&limit=15
-    // Limit = page size
-    let limit = Number(req.query?.limit)
-    limit = limit > 0 ? limit : Number(process.env?.PAGE_SIZE || 20)
-    // console.log(limit, typeof limit)
-    // Page
-    let page = Number(req.query?.page)
-    page = page > 0 ? page : 1
-    // Skip
-    let skip =Number(req.query?.skip)
-    skip = skip > 0 ? skip : ((page-1) * limit)
-
-
-
-    // Run
-    // const data = await BlogPost.find({...filter, ...search}).skip(skip).sort(sort).limit(limit);
-    // const data = await BlogPost.find({...filter, ...search}).skip(skip).sort(sort).limit(limit).populate('categoryId');
-
-
-    
-    // getModelList
-    res.getModelList = async ( Model, populate = null ) => {
-
-        return await Model.find({...filter, ...search}).sort(sort).skip(skip).limit(limit).populate(populate);
-    }
-
-    res.getModelListDetails = async ( Model ) => {
-
-        const data = await Model.find({...filter, ...search})
-
-        let details = {
-            filter,
-            search,
-            sort,
-            skip,
-            limit,
-            page,
-            pages: {
-                previous: (page > 1 ? page-1 : false),
-                current: page,
-                next: page + 1,
-                total: Math.ceil(data.length / limit)
-            },
-            totalRecords: data.length
-        }
-
-        // details.pages.next = (details.pages.next > details.pages.total ? false : details.pages.next)
-        if(details.pages.next > details.pages.total) details.pages.next = false
-        if (details.totalRecords <= limit) details.pages = false
-
-        return details
-    }
-
-
-    next()
-}
-
-
-/* ------------------------------------------------------- */

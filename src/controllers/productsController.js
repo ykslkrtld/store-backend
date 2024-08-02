@@ -49,13 +49,23 @@ const category = {
             data,
           });
     },
+    listProductsByCategory: async (req, res) => {
+        const data = await res.getModelList(Product, {categoryId: req.params.categoryId}, 'categoryId')
+        // Product.find({categoryId: req.params.categoryId}).populate('categoryId')
+
+        res.status(200).send({
+            error: false,
+            details: await res.getModelListDetails(Product, {categoryId: req.params.categoryId} ),
+            data
+        })
+    }
 }
 
 
 const product = {
 
     list: async (req, res) => {
-        const data = await res.getModelList(Product, 'categoryId')
+        const data = await res.getModelList(Product, {}, 'categoryId')
 
         res.status(200).send({
             error: false,

@@ -23,6 +23,10 @@ router.route('/category/:categoryId')
     .delete(isAdmin, category.delete)
 
 
+router.get('/category/:categoryId/product', category.listProductsByCategory)
+
+
+
 // Product
 router.route('/product')
     .get(isLogin, product.list)
@@ -33,6 +37,7 @@ router.route('/product/:productId')
     .put(isAdmin, product.update)
     .patch(isAdmin, product.update)
     .delete(isAdmin, product.delete)
+
 
 
 module.exports = router
